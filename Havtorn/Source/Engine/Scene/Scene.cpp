@@ -295,6 +295,16 @@ namespace Havtorn
 
 		scene->AddNodeComponentToEntity(cube);
 
+		auto cuby = scene->CreateEntity("Cuby");
+
+		auto& transformCuby = scene->AddTransformComponentToEntity(cuby)->Transform;
+		transformCuby.GetMatrix().SetTranslation({ 0.25f, -5.0f, 0.25f });
+
+		renderManager->LoadStaticMeshComponent("Assets/Tests/Cube_1.hva", scene->AddStaticMeshComponentToEntity(cuby).get());
+		renderManager->LoadMaterialComponent({"Checkboard_128x128"}, scene->AddMaterialComponentToEntity(cuby).get());
+
+		scene->AddNodeComponentToEntity(cuby);
+		transformCuby.SetParent(&transformCube);
 	}
 
 	Ref<SEntity> CScene::CreateEntity(const std::string& name)

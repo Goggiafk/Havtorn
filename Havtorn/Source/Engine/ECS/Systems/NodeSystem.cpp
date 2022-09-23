@@ -24,18 +24,22 @@ namespace Havtorn
 	void CNodeSystem::Update(CScene* scene)
 	{
 		auto& nodeComponents = scene->GetNodeComponents();
+		auto& transformComponents = scene->GetTransformComponents();
 		for (auto& node : nodeComponents)
 		{
-			node->Time += GTimer::Dt();
+			if (node->Entity->Name.AsString() == "Cubert")
+			{
+				node->Time += GTimer::Dt();
 			
-			const auto& transformIndex = node->Entity->GetComponentIndex(EComponentType::TransformComponent);
-			auto& transform = scene->GetTransformComponents()[transformIndex];
-			auto& matrix = transform->Transform.GetMatrix();
-			auto currentPosition = matrix.GetTranslation();
-			currentPosition.X = UMath::Cos(node->Time);
-			currentPosition.Z = UMath::Sin(node->Time);
-			//currentPosition.Z = UMath::Sin(node->Time);
-			matrix.SetTranslation(currentPosition);
+				const auto& transformIndex = node->Entity->GetComponentIndex(EComponentType::TransformComponent);
+				auto& transform = transformComponents[transformIndex];
+				auto& matrix = transform->Transform.GetMatrix();
+
+				auto currentPosition = matrix.GetTranslation();
+				currentPosition.X = UMath::Cos(node->Time);
+				currentPosition.Z = UMath::Sin(node->Time);
+				matrix.SetTranslation(currentPosition);
+			}
 		}
 	}
 }
