@@ -4,6 +4,7 @@
 #include "Graphics/GraphicsEnums.h"
 #include "Graphics/GraphicsStructs.h"
 #include "Core/Color.h"
+#include "SDebugShape.h"
 
 #include <queue>
 #include <map>
@@ -27,7 +28,6 @@
 namespace Havtorn
 {
 	struct SMatrix;
-	struct SDebugShape;
 	class CRenderManager;
 
 	class UDebugSystem final
@@ -108,7 +108,7 @@ namespace Havtorn
 		
 	private:
 		static HAVTORN_API UDebugSystem* Instance;
-		const static std::map<EVertexBufferPrimitives, const SPrimitive&> Shapes;
+		const static std::map<EVertexBufferPrimitives, const SPrimitive&> ShapePrimitives;
 
 		CRenderManager* RenderManager = nullptr;
 		std::vector<U64> ActiveIndices;

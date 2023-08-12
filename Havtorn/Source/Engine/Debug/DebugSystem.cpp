@@ -1,9 +1,7 @@
 // Copyright 2022 Team Havtorn. All Rights Reserved.
 
 #include "hvpch.h"
-#include "DebugShapeSystem.h"
-
-#include "SDebugShape.h"
+#include "DebugSystem.h"
 
 #include "Graphics/GeometryPrimitives.h"
 
@@ -16,21 +14,21 @@ namespace Havtorn
 {
 	UDebugSystem* UDebugSystem::Instance = nullptr;
 
-	const std::map<EVertexBufferPrimitives, const SPrimitive&> UDebugSystem::Shapes = 
+	const std::map<EVertexBufferPrimitives, const SPrimitive&> UDebugSystem::ShapePrimitives = 
 	{
-		{ EVertexBufferPrimitives::Line, GeometryPrimitives::Line},
-		{ EVertexBufferPrimitives::Pyramid, GeometryPrimitives::Pyramid},
-		{ EVertexBufferPrimitives::BoundingBox, GeometryPrimitives::BoundingBox},
-		{ EVertexBufferPrimitives::Camera, GeometryPrimitives::Camera},
-		{ EVertexBufferPrimitives::Circle8, GeometryPrimitives::Circle8},
-		{ EVertexBufferPrimitives::Circle16, GeometryPrimitives::Circle16},
-		{ EVertexBufferPrimitives::Circle32, GeometryPrimitives::Circle32},
-		{ EVertexBufferPrimitives::HalfCircle16, GeometryPrimitives::HalfCircle16},
-		{ EVertexBufferPrimitives::Grid, GeometryPrimitives::Grid},
-		{ EVertexBufferPrimitives::Axis, GeometryPrimitives::Axis},
-		{ EVertexBufferPrimitives::Octahedron, GeometryPrimitives::Octahedron},
-		{ EVertexBufferPrimitives::Square, GeometryPrimitives::Square},
-		{ EVertexBufferPrimitives::UVSphere, GeometryPrimitives::UVSphere},
+		{ EVertexBufferPrimitives::Line,			GeometryPrimitives::Line},
+		{ EVertexBufferPrimitives::Pyramid,			GeometryPrimitives::Pyramid},
+		{ EVertexBufferPrimitives::BoundingBox,		GeometryPrimitives::BoundingBox},
+		{ EVertexBufferPrimitives::Camera,			GeometryPrimitives::Camera},
+		{ EVertexBufferPrimitives::Circle8,			GeometryPrimitives::Circle8},
+		{ EVertexBufferPrimitives::Circle16,		GeometryPrimitives::Circle16},
+		{ EVertexBufferPrimitives::Circle32,		GeometryPrimitives::Circle32},
+		{ EVertexBufferPrimitives::HalfCircle16,	GeometryPrimitives::HalfCircle16},
+		{ EVertexBufferPrimitives::Grid,			GeometryPrimitives::Grid},
+		{ EVertexBufferPrimitives::Axis,			GeometryPrimitives::Axis},
+		{ EVertexBufferPrimitives::Octahedron,		GeometryPrimitives::Octahedron},
+		{ EVertexBufferPrimitives::Square,			GeometryPrimitives::Square},
+		{ EVertexBufferPrimitives::UVSphere,		GeometryPrimitives::UVSphere},
 	};
 
 	UDebugSystem::UDebugSystem(CRenderManager* renderManager)
