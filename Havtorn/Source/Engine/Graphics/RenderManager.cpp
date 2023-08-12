@@ -2176,8 +2176,7 @@ namespace Havtorn
 
 	inline void CRenderManager::DebugShapes(const SRenderCommand& /*command*/)
 	{
-		//const SDebugShapeComponent& shape = command.GetComponent(DebugShapeComponent);
-		//const STransformComponent& transform = command.GetComponent(TransformComponent);
+		// DebugSystem: get shapes
 
 		//DebugShapeObjectBufferData.ToWorldFromObject = transform->Transform.GetMatrix();
 		//DebugShapeObjectBufferData.Color = shape->Color.AsVector4();

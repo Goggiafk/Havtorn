@@ -1,14 +1,13 @@
 // Copyright 2022 Team Havtorn. All Rights Reserved.
 
 #pragma once
-#include "ECS/System.h"
-
 #include "Graphics/GraphicsEnums.h"
 #include "Graphics/GraphicsStructs.h"
 #include "Core/Color.h"
 
 #include <queue>
 #include <map>
+#include <array>
 
 #ifdef _DEBUG
 
@@ -28,19 +27,16 @@
 namespace Havtorn
 {
 	struct SMatrix;
-	struct SEntity;
-	struct STransformComponent;
-	struct SDebugShapeComponent;
+	struct SDebugShape;
 	class CRenderManager;
 
-	// Requirement: Add to Scene systems after RenderSystem.
-	class UDebugShapeSystem final : public ISystem
+	class UDebugSystem final
 	{
-	public: // ISystem inherited.
-		UDebugShapeSystem(CScene* scene, CRenderManager* renderManager);
-		~UDebugShapeSystem() override;
+	public:
+		UDebugSystem(CRenderManager* renderManager);
+		~UDebugSystem();
 
-		void Update(CScene* scene) override;
+		void Update();
 
 	public: // Static Add Shape functions.
 		/*
@@ -80,17 +76,12 @@ namespace Havtorn
 
 	private:	
 		static bool InstanceExists();
-		/*
-			Adding several shapes at once: composite shapes.
-				Differing parameters: vertexBuffer, indexBuffer, transform
-				Need to be able to check available indices directly
-
-		*/
+		
 		struct SShapeData
 		{
 			EVertexBufferPrimitives VertexBuffer;
 			EDefaultIndexBuffers IndexBuffer;
-			Ref<STransformComponent> Transform;
+			STransform Transform;
 
 			SShapeData(EVertexBufferPrimitives vertexBuffer, EDefaultIndexBuffers indexBuffer)
 				: VertexBuffer(vertexBuffer)
@@ -100,12 +91,8 @@ namespace Havtorn
 		};
 		static bool TryAddShape(const SColor& color, const F32 lifeTimeSeconds, const bool useLifeTime, const F32 thickness, const bool ignoreDepth, std::vector<SShapeData>& outShapes);
 		
-		void SendRenderCommands(
-			const std::vector<Ref<SEntity>>& entities,
-			const std::vector<Ref<SDebugShapeComponent>>& debugShapes,
-			const std::vector<Ref<STransformComponent>>& transformComponents
-		);
-		void CheckActiveIndices(const std::vector<Ref<SDebugShapeComponent>>& debugShapes);
+		void SendRenderCommands();
+		void CheckActiveIndices();
 		void ResetAvailableIndices();
 
 		void TransformToFaceAndReach(const SVector& start, const SVector& end, SMatrix& transform);
@@ -120,13 +107,12 @@ namespace Havtorn
 #endif
 		
 	private:
-		static HAVTORN_API UDebugShapeSystem* Instance;
+		static HAVTORN_API UDebugSystem* Instance;
 		const static std::map<EVertexBufferPrimitives, const SPrimitive&> Shapes;
 
-		U64 EntityStartIndex = 0;
-		CScene* Scene = nullptr;
 		CRenderManager* RenderManager = nullptr;
 		std::vector<U64> ActiveIndices;
 		std::queue<U64> AvailableIndices;
+		std::array<SDebugShape, MaxShapes> Shapes;
 	};
 }

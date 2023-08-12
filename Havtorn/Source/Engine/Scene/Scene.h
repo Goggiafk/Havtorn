@@ -36,7 +36,6 @@ namespace Havtorn
 	struct STransform2DComponent;
 	struct SSpriteAnimatorGraphComponent;
 	struct SGhostyComponent;
-	struct SDebugShapeComponent;
 	struct SMetaDataComponent;
 
 	class CRenderManager;
@@ -86,7 +85,6 @@ namespace Havtorn
 		COMPONENT_VECTOR_GETTER(Transform2DComponent)
 		COMPONENT_VECTOR_GETTER(SpriteAnimatorGraphComponent)
 		COMPONENT_VECTOR_GETTER(GhostyComponent)
-		COMPONENT_VECTOR_GETTER(DebugShapeComponent)
 		COMPONENT_VECTOR_GETTER(MetaDataComponent)
 
 		COMPONENT_ADDER_DECLARATION(TransformComponent)
@@ -104,7 +102,6 @@ namespace Havtorn
 		COMPONENT_ADDER_DECLARATION(Transform2DComponent)
 		COMPONENT_ADDER_DECLARATION(SpriteAnimatorGraphComponent)
 		COMPONENT_ADDER_DECLARATION(GhostyComponent)
-		COMPONENT_ADDER_DECLARATION(DebugShapeComponent)
 		COMPONENT_ADDER_DECLARATION(MetaDataComponent)
 
 		COMPONENT_REMOVER_DECLARATION(TransformComponent)
@@ -122,7 +119,6 @@ namespace Havtorn
 		COMPONENT_REMOVER_DECLARATION(Transform2DComponent)
 		COMPONENT_REMOVER_DECLARATION(SpriteAnimatorGraphComponent)
 		COMPONENT_REMOVER_DECLARATION(GhostyComponent)
-		COMPONENT_REMOVER_DECLARATION(DebugShapeComponent)
 		COMPONENT_REMOVER_DECLARATION(MetaDataComponent)
 
 	private:
@@ -147,7 +143,6 @@ namespace Havtorn
 		COMPONENT_VECTOR_DECLARATION(Transform2DComponent)
 		COMPONENT_VECTOR_DECLARATION(SpriteAnimatorGraphComponent)
 		COMPONENT_VECTOR_DECLARATION(GhostyComponent)
-		COMPONENT_VECTOR_DECLARATION(DebugShapeComponent)
 		COMPONENT_VECTOR_DECLARATION(MetaDataComponent)
 		U64 FirstUnusedEntityIndex = 0;
 		U64 MainCameraIndex = 0;

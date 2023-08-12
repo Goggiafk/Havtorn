@@ -100,8 +100,6 @@ namespace Havtorn
 		//		return VolumetricLightComponent;
 		//	case Havtorn::EComponentType::DecalComponent:
 		//		return DecalComponent;
-		//	case Havtorn::EComponentType::DebugShapeComponent:
-		//		return DebugShapeComponent;
 		//	case Havtorn::EComponentType::MetaDataComponent:
 		//		return MetaDataComponent;
 		//	case Havtorn::EComponentType::Count:
@@ -123,7 +121,6 @@ namespace Havtorn
 		inline const SDecalComponent& GetDecalComponent() const { return DecalComponent; }
 		inline const SSpriteComponent& GetSpriteComponent() const { return SpriteComponent; }
 		inline const STransform2DComponent& GetTransform2DComponent() const { return Transform2DComponent; }
-		inline const SDebugShapeComponent& GetDebugShapeComponent() const { return DebugShapeComponent; }
 		inline const SMetaDataComponent& GetMetaDataComponent() const { return MetaDataComponent; }
 
 		//SComponentArray Components;
@@ -141,7 +138,6 @@ namespace Havtorn
 		SDecalComponent DecalComponent;
 		SSpriteComponent SpriteComponent;
 		STransform2DComponent Transform2DComponent;
-		SDebugShapeComponent DebugShapeComponent;
 		SMetaDataComponent MetaDataComponent;
 	};
 }

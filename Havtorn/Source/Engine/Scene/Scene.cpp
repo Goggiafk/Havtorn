@@ -30,7 +30,6 @@ namespace Havtorn
 		Transform2DComponents.resize(ENTITY_LIMIT);
 		SpriteAnimatorGraphComponents.resize(ENTITY_LIMIT);
 		GhostyComponents.resize(ENTITY_LIMIT);
-		DebugShapeComponents.resize(ENTITY_LIMIT);
 		MetaDataComponents.resize(ENTITY_LIMIT);
 	}
 
@@ -53,7 +52,6 @@ namespace Havtorn
 		Transform2DComponents.clear();
 		SpriteAnimatorGraphComponents.clear();
 		GhostyComponents.clear();
-		DebugShapeComponents.clear();
 		MetaDataComponents.clear();
 		RenderManager = nullptr;
 	}
@@ -955,7 +953,6 @@ namespace Havtorn
 		UpdateComponentVector(SpriteComponents, entityIndex);
 		UpdateComponentVector(Transform2DComponents, entityIndex);
 		UpdateComponentVector(SpriteAnimatorGraphComponents, entityIndex);
-		UpdateComponentVector(DebugShapeComponents, entityIndex);
 		UpdateComponentVector(MetaDataComponents, entityIndex);
 
 		Entities[FirstUnusedEntityIndex - 1].GUID = 0;
@@ -1026,7 +1023,6 @@ namespace Havtorn
 			AddSpriteAnimatorGraphComponentToEntity(entity);
 			break;
 
-		case Havtorn::EComponentType::DebugShapeComponent:
 		case Havtorn::EComponentType::MetaDataComponent:
 		case Havtorn::EComponentType::Count:
 		default:
@@ -1081,7 +1077,6 @@ namespace Havtorn
 			RemoveSpriteAnimatorGraphComponentFromEntity(entity);
 			break;
 
-		case Havtorn::EComponentType::DebugShapeComponent:
 		case Havtorn::EComponentType::MetaDataComponent:
 		case Havtorn::EComponentType::Count:
 		default:
@@ -1104,7 +1099,6 @@ namespace Havtorn
 		COMPONENT_ADDER_DEFINITION(Transform2DComponent)
 		COMPONENT_ADDER_DEFINITION(SpriteAnimatorGraphComponent)
 		COMPONENT_ADDER_DEFINITION(GhostyComponent);
-	COMPONENT_ADDER_DEFINITION(DebugShapeComponent)
 		COMPONENT_ADDER_DEFINITION(MetaDataComponent)
 
 		COMPONENT_REMOVER_DEFINITION(TransformComponent)
@@ -1122,6 +1116,5 @@ namespace Havtorn
 		COMPONENT_REMOVER_DEFINITION(Transform2DComponent)
 		COMPONENT_REMOVER_DEFINITION(SpriteAnimatorGraphComponent)
 		COMPONENT_REMOVER_DEFINITION(GhostyComponent)
-		COMPONENT_REMOVER_DEFINITION(DebugShapeComponent)
 		COMPONENT_REMOVER_DEFINITION(MetaDataComponent)
 }

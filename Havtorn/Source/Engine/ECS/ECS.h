@@ -21,7 +21,6 @@ namespace Havtorn
 		Transform2DComponent,
 		SpriteAnimatorGraphComponent,
 		GhostyComponent,
-		DebugShapeComponent,
 		MetaDataComponent,
 		Count
 	};
@@ -61,7 +60,6 @@ namespace Havtorn
 		case Havtorn::EComponentType::GhostyComponent:
 			return "GhostyComponent";
 
-		case Havtorn::EComponentType::DebugShapeComponent:
 		case Havtorn::EComponentType::MetaDataComponent:
 		case Havtorn::EComponentType::Count:
 		default:

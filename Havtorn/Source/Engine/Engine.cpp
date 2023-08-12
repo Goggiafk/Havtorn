@@ -57,6 +57,7 @@ namespace Havtorn
 
 	bool GEngine::Init(const CWindowHandler::SWindowData& windowData)
 	{
+		// if Debug: Init DebugSystem
 		ENGINE_ERROR_BOOL_MESSAGE(InputMapper->Init(), "Input Mapper could not be initialized.");
 		ENGINE_ERROR_BOOL_MESSAGE(WindowHandler->Init(windowData), "Window Handler could not be initialized.");
 		ENGINE_ERROR_BOOL_MESSAGE(Framework->Init(WindowHandler), "Framework could not be initialized.");
@@ -81,6 +82,7 @@ namespace Havtorn
 	{
 		InputMapper->Update();
 		World->Update();
+		//DebugSystem->Update();
 
 		GTime::EndTracking(ETimerCategory::CPU);
 

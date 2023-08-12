@@ -10,8 +10,6 @@
 #include "Core/CoreTypes.h"
 #include "ECS/Components/MetaDataComponent.h"
 
-#include <ECS/Systems/DebugShapeSystem.h>
-
 #include <imgui.h>
 
 namespace ImGui
@@ -50,7 +48,7 @@ namespace ImGui
 			Havtorn::I32 index = 0;
 			auto& entities = Havtorn::GEngine::GetWorld()->GetEntities();
 			
-			for (Havtorn::U64 i = Havtorn::UDebugShapeSystem::MaxShapes; i < entities.size(); i++)
+			for (Havtorn::U64 i = 0; i < entities.size(); i++)
 			{
 				auto& entity = entities[i];
 				if (!entity.IsValid())
