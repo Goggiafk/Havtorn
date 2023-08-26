@@ -15,6 +15,7 @@ namespace Havtorn
 	class CAudioManager;
 	class CFileSystem;
 	class CTextureBank;
+	class GDebugSystem;
 
 	class GEngine
 	{
@@ -61,5 +62,6 @@ namespace Havtorn
 		GTime* Timer = nullptr;
 		CInputMapper* InputMapper = nullptr;
 		CWorld* World = nullptr;
+		GDebugSystem* DebugSystem = nullptr;
 	};
 }

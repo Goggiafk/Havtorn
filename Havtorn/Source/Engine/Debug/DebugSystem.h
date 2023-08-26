@@ -25,18 +25,20 @@
 
 #endif
 
+// TODO: wrap internal methods with if _DEBUG. Should not cause issues when !debug but should not execute.
+
 namespace Havtorn
 {
 	struct SMatrix;
 	class CRenderManager;
 
-	class UDebugSystem final
+	class GDebugSystem final
 	{
 	public:
-		UDebugSystem(CRenderManager* renderManager);
-		~UDebugSystem();
+		GDebugSystem();
+		~GDebugSystem();
 
-		void Update();
+		void Update(CRenderManager& renderManager);
 
 	public: // Static Add Shape functions.
 		/*
@@ -48,7 +50,7 @@ namespace Havtorn
 		*	+	Create a static function for the shape, use TryAddShape(..) to set default parameters
 		*	+	Optional: add a call to the shape to TestAllShapes() and call it somewhere to see that everything is working as expected.
 		*/
-		static constexpr U16 MaxShapes = 0;
+		static constexpr U16 MaxShapes = 50;
 		static constexpr F32 ThicknessMinimum = 0.005f;
 		static constexpr F32 ThicknessMaximum = 0.05f;
 
@@ -73,25 +75,12 @@ namespace Havtorn
 		static HAVTORN_API void AddConeAngle(const SVector& apexPosition, const SVector& direction, const F32 height, const F32 angleDegrees, const SColor& color = SColor::White, const F32 lifeTimeSeconds = -1.0f, const bool useLifeTime = true, const F32 thickness = ThicknessMinimum, const bool ignoreDepth = true);
 		static HAVTORN_API void AddCapsule(const SVector& center, const SVector& eulerRotation, const F32 height, const F32 radius, const SColor& color = SColor::White, const F32 lifeTimeSeconds = -1.0f, const bool useLifeTime = true, const F32 thickness = ThicknessMinimum, const bool ignoreDepth = true);
 		
-
 	private:	
 		static bool InstanceExists();
 		
-		struct SShapeData
-		{
-			EVertexBufferPrimitives VertexBuffer;
-			EDefaultIndexBuffers IndexBuffer;
-			STransform Transform;
-
-			SShapeData(EVertexBufferPrimitives vertexBuffer, EDefaultIndexBuffers indexBuffer)
-				: VertexBuffer(vertexBuffer)
-				, IndexBuffer(indexBuffer)
-			{}
-
-		};
-		static bool TryAddShape(const SColor& color, const F32 lifeTimeSeconds, const bool useLifeTime, const F32 thickness, const bool ignoreDepth, std::vector<SShapeData>& outShapes);
+		static bool TryAddShape(const SColor& color, const F32 lifeTimeSeconds, const bool useLifeTime, const F32 thickness, const bool ignoreDepth, std::vector<SDebugShape*>& outShapes);
 		
-		void SendRenderCommands();
+		void SendRenderCommands(CRenderManager& renderManager);
 		void CheckActiveIndices();
 		void ResetAvailableIndices();
 
@@ -107,10 +96,9 @@ namespace Havtorn
 #endif
 		
 	private:
-		static HAVTORN_API UDebugSystem* Instance;
+		static HAVTORN_API GDebugSystem* Instance;
 		const static std::map<EVertexBufferPrimitives, const SPrimitive&> ShapePrimitives;
 
-		CRenderManager* RenderManager = nullptr;
 		std::vector<U64> ActiveIndices;
 		std::queue<U64> AvailableIndices;
 		std::array<SDebugShape, MaxShapes> Shapes;

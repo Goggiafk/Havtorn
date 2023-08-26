@@ -248,10 +248,10 @@ namespace Havtorn
 
 		static SMeshData Icosphere = CreateIcosphere(2);
 
-#pragma region SPRIMITIVES_FOR_DEBUG_SHAPES
+#pragma region SPRIMITIVES_FOR_LINE_SHAPES
 
 		/*
-			[Last edited: 2022-12-01 by AG]
+			[Last edited: 2023-08-26 by AG]
 			SPrimitives are currently only used by DebugSystem. Max limit on vertices and indices are U8: 255.
 		*/
 
@@ -599,6 +599,6 @@ namespace Havtorn
 			UVSphereIndicesLineTopo(12, 12)
 		};
 
-#pragma endregion !SPRIMITIVES_FOR_DEBUG_SHAPES
+#pragma endregion !SPRIMITIVES_FOR_LINE_SHAPES
 	}
 }

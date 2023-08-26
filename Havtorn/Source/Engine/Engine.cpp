@@ -21,6 +21,8 @@
 
 #include "Timer.h"
 
+#include "Debug/DebugSystem.h"
+
 namespace Havtorn
 {
 	GEngine* GEngine::Instance = nullptr;
@@ -38,6 +40,7 @@ namespace Havtorn
 		RenderManager = new CRenderManager();
 		World = new CWorld();
 		ThreadManager = new CThreadManager();
+		DebugSystem = new GDebugSystem();
 	}
 
 	GEngine::~GEngine()
@@ -51,13 +54,13 @@ namespace Havtorn
 		SAFE_DELETE(InputMapper);
 		SAFE_DELETE(Timer);
 		SAFE_DELETE(FileSystem);
+		SAFE_DELETE(DebugSystem);
 
 		Instance = nullptr;
 	}
 
 	bool GEngine::Init(const CWindowHandler::SWindowData& windowData)
 	{
-		// if Debug: Init DebugSystem
 		ENGINE_ERROR_BOOL_MESSAGE(InputMapper->Init(), "Input Mapper could not be initialized.");
 		ENGINE_ERROR_BOOL_MESSAGE(WindowHandler->Init(windowData), "Window Handler could not be initialized.");
 		ENGINE_ERROR_BOOL_MESSAGE(Framework->Init(WindowHandler), "Framework could not be initialized.");
@@ -82,8 +85,10 @@ namespace Havtorn
 	{
 		InputMapper->Update();
 		World->Update();
-		//DebugSystem->Update();
 
+#if _DEBUG
+		DebugSystem->Update(*RenderManager);
+#endif
 		GTime::EndTracking(ETimerCategory::CPU);
 
 		std::unique_lock<std::mutex> uniqueLock(CThreadManager::RenderMutex);
