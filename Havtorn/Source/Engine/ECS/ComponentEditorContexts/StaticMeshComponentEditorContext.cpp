@@ -78,7 +78,7 @@ namespace Havtorn
 
 	bool SStaticMeshComponentEditorContext::RemoveComponent(const SEntity& entity, CScene* scene) const
 	{
-		if (!ImGui::Button("X##15"))
+		if (!ImGui::Button("X##16"))
 			return false;
 
 		if (scene == nullptr || !entity.IsValid())
