@@ -58,9 +58,8 @@ namespace Havtorn
 		if (scene == nullptr || !entity.IsValid())
 			return false;
 
-		scene->RemoveComponent<STransformComponent>(entity);
-		scene->RemoveComponentEditorContext(entity, &STransformComponentEditorContext::Context);
-		return true;
+		scene->GetComponent<STransformComponent>(entity)->Transform.SetMatrix(SMatrix::Identity);
+		return false;
 	}
 
 	U8 STransformComponentEditorContext::GetSortingPriority() const
