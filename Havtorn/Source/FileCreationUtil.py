@@ -315,7 +315,7 @@ class FileCreationUtil:
     def process_commands(self):
         while(True):
             self.print_options()
-            self.print_status()
+            self.print_status() # Add warning for VS, PS & GS if they don't include _VS
 
             userInput=input(self.inputCharacters)
 

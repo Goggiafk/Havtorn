@@ -1,0 +1,400 @@
+cmake_minimum_required (VERSION 3.31)
+
+project (Havtorn
+  DESCRIPTION "Havtorn"
+  LANGUAGES CXX
+  VERSION 1.0.0
+)
+
+# option(BUILD_TEST_TEMPLATE "Ignore warnings related to TODOs" OFF)
+
+# option(ENABLE_CODE_ANALYSIS "Use Static Code Analysis on build" OFF)
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
+set(COMMON_COMPILE_DEFINITIONS HV_PLATFORM_WINDOWS HV_DEBUG HV_ENABLE_ASSERTS _UNICODE UNICODE)
+set(COMMON_COMPILE_OPTIONS /W4 /WX /MP /ZI /JMC /fp:fast /FC)
+set(COMMON_LINK_OPTIONS /WX /SUBSYSTEM:WINDOWS)
+
+# ==================== FOLDERS ====================
+set(ENGINE_FOLDER "Engine/")
+set(SHADER_FOLDER "Engine/Graphics/Shaders/")
+set(SHADER_INCL_FOLDER "Engine/Graphics/Shaders/Includes/")
+set(EDITOR_FOLDER "Editor/")
+set(GAME_FOLDER "Game/")
+set(GUI_FOLDER "GUI/")
+set(CORE_FOLDER "Core/")
+set(PLATFORM_FOLDER "Platform/")
+set(LAUNCHER_FOLDER "Launcher/")
+set(EXTERNAL_FOLDER "../External/")
+set(IMGUI_FOLDER "../External/imgui/")
+set(IMGUIZMO_FOLDER "../External/ImGuizmo/")
+set(IMGUI_NODE_FOLDER "../External/imgui-node-editor/")
+set(RAPIDJSON_FOLDER "../External/rapidjson/include/rapidjson/")
+set(WORKING_FOLDER "${CMAKE_BINARY_DIR}/../Bin/")
+# ==================== FOLDERS ====================
+
+# ==================== CORE ====================
+set(CORE_FILES
+)
+set(RAPIDJSON_FILES
+    "${RAPIDJSON_FOLDER}error/en.h"
+    "${RAPIDJSON_FOLDER}error/error.h"
+    "${RAPIDJSON_FOLDER}internal/biginteger.h"
+    "${RAPIDJSON_FOLDER}internal/clzll.h"
+    "${RAPIDJSON_FOLDER}internal/diyfp.h"
+    "${RAPIDJSON_FOLDER}internal/dtoa.h"
+    "${RAPIDJSON_FOLDER}internal/ieee754.h"
+    "${RAPIDJSON_FOLDER}internal/itoa.h"
+    "${RAPIDJSON_FOLDER}internal/meta.h"
+    "${RAPIDJSON_FOLDER}internal/pow10.h"
+    "${RAPIDJSON_FOLDER}internal/regex.h"
+    "${RAPIDJSON_FOLDER}internal/stack.h"
+    "${RAPIDJSON_FOLDER}internal/strfunc.h"
+    "${RAPIDJSON_FOLDER}internal/strtod.h"
+    "${RAPIDJSON_FOLDER}internal/swap.h"
+    "${RAPIDJSON_FOLDER}msinttypes/inttypes.h"
+    "${RAPIDJSON_FOLDER}msinttypes/stdint.h"
+    "${RAPIDJSON_FOLDER}allocators.h"
+    "${RAPIDJSON_FOLDER}cursorstreamwrapper.h"
+    "${RAPIDJSON_FOLDER}document.h"
+    "${RAPIDJSON_FOLDER}encodedstream.h"
+    "${RAPIDJSON_FOLDER}encodings.h"
+    "${RAPIDJSON_FOLDER}filereadstream.h"
+    "${RAPIDJSON_FOLDER}filewritestream.h"
+    "${RAPIDJSON_FOLDER}fwd.h"
+    "${RAPIDJSON_FOLDER}istreamwrapper.h"
+    "${RAPIDJSON_FOLDER}memorybuffer.h"
+    "${RAPIDJSON_FOLDER}memorystream.h"
+    "${RAPIDJSON_FOLDER}ostreamwrapper.h"
+    "${RAPIDJSON_FOLDER}pointer.h"
+    "${RAPIDJSON_FOLDER}prettywriter.h"
+    "${RAPIDJSON_FOLDER}rapidjson.h"
+    "${RAPIDJSON_FOLDER}reader.h"
+    "${RAPIDJSON_FOLDER}schema.h"
+    "${RAPIDJSON_FOLDER}stream.h"
+    "${RAPIDJSON_FOLDER}stringbuffer.h"
+    "${RAPIDJSON_FOLDER}uri.h"
+    "${RAPIDJSON_FOLDER}writer.h"
+)
+add_library(Core SHARED ${CORE_FILES} ${RAPIDJSON_FILES})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${CORE_FILES})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}"/../External/rapidjson/include" FILES ${RAPIDJSON_FILES})
+target_include_directories(Core PRIVATE
+    "${CORE_FOLDER}"
+    "${EXTERNAL_FOLDER}rapidjson/include"
+)
+target_compile_definitions(Core PRIVATE ${COMMON_COMPILE_DEFINITIONS} HV_CORE_DLL)
+target_compile_options(Core PRIVATE ${COMMON_COMPILE_OPTIONS})
+target_link_options(Core PRIVATE ${COMMON_LINK_OPTIONS})
+target_precompile_headers(Core PRIVATE ${CORE_FOLDER}hvpch.h)
+set_property(TARGET Core PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${WORKING_FOLDER})
+set_target_properties(Core PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${WORKING_FOLDER} RUNTIME_OUTPUT_DIRECTORY_RELEASE ${WORKING_FOLDER})
+# ==================== CORE ====================
+
+# ==================== PLATFORM ====================
+set(PLATFORM_FILES
+)
+add_library(Platform SHARED ${PLATFORM_FILES})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${PLATFORM_FILES})
+target_link_libraries(Platform PRIVATE
+    Core
+)
+target_include_directories(Platform PRIVATE
+	"${PLATFORM_FOLDER}"
+    "${CORE_FOLDER}"
+    "${EXTERNAL_FOLDER}rapidjson/include"
+)
+target_link_directories(Platform PRIVATE
+    ${CMAKE_BINARY_DIR}
+)
+target_compile_definitions(Platform PRIVATE ${COMMON_COMPILE_DEFINITIONS} HV_PLATFORM_DLL)
+target_compile_options(Platform PRIVATE ${COMMON_COMPILE_OPTIONS})
+target_link_options(Platform PRIVATE ${COMMON_LINK_OPTIONS})
+set_property(TARGET Platform PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${WORKING_FOLDER})
+set_target_properties(Platform PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${WORKING_FOLDER} RUNTIME_OUTPUT_DIRECTORY_RELEASE ${WORKING_FOLDER})
+add_dependencies(Platform Core)
+# ==================== PLATFORM ====================
+
+# ==================== GUI ====================
+set(GUI_FILES
+)
+# We want a selection of files from ImGui & ImGui-related 
+set(IMGUI_FILES
+#  ------- SELECTION IMGUI -------
+   ${IMGUI_FOLDER}imconfig.h
+   ${IMGUI_FOLDER}imgui.cpp
+   ${IMGUI_FOLDER}imgui.h
+   ${IMGUI_FOLDER}imgui_demo.cpp
+   ${IMGUI_FOLDER}imgui_draw.cpp
+   ${IMGUI_FOLDER}imgui_internal.h
+   ${IMGUI_FOLDER}imgui_tables.cpp
+   ${IMGUI_FOLDER}imgui_widgets.cpp
+   ${IMGUI_FOLDER}imstb_rectpack.h
+   ${IMGUI_FOLDER}imstb_textedit.h
+   ${IMGUI_FOLDER}imstb_truetype.h
+   ${IMGUI_FOLDER}backends/imgui_impl_dx11.cpp
+   ${IMGUI_FOLDER}backends/imgui_impl_dx11.h
+   ${IMGUI_FOLDER}backends/imgui_impl_win32.cpp
+   ${IMGUI_FOLDER}backends/imgui_impl_win32.h
+   ${IMGUI_FOLDER}misc/debuggers/imgui.natvis
+   ${IMGUI_FOLDER}misc/debuggers/imgui.natstepfilter
+   ${IMGUI_FOLDER}misc/cpp/imgui_stdlib.cpp
+   ${IMGUI_FOLDER}misc/cpp/imgui_stdlib.h
+#  ------- SELECTION IMGUIZMO -------
+   ${IMGUIZMO_FOLDER}GraphEditor.cpp
+   ${IMGUIZMO_FOLDER}GraphEditor.h
+   ${IMGUIZMO_FOLDER}ImCurveEdit.cpp
+   ${IMGUIZMO_FOLDER}ImCurveEdit.h
+   ${IMGUIZMO_FOLDER}ImCurveEdit.cpp
+   ${IMGUIZMO_FOLDER}ImCurveEdit.h
+   ${IMGUIZMO_FOLDER}ImGradient.cpp
+   ${IMGUIZMO_FOLDER}ImGradient.h
+   ${IMGUIZMO_FOLDER}ImGuizmo.cpp
+   ${IMGUIZMO_FOLDER}ImGuizmo.h
+   ${IMGUIZMO_FOLDER}ImSequencer.cpp
+   ${IMGUIZMO_FOLDER}ImSequencer.h
+   ${IMGUIZMO_FOLDER}ImZoomSlider.h
+#  ------- SELECTION IMGUI NODE -------
+   ${IMGUI_NODE_FOLDER}crude_json.cpp
+   ${IMGUI_NODE_FOLDER}crude_json.h
+   ${IMGUI_NODE_FOLDER}imgui_bezier_math.h
+   ${IMGUI_NODE_FOLDER}imgui_canvas.cpp
+   ${IMGUI_NODE_FOLDER}imgui_canvas.h
+   ${IMGUI_NODE_FOLDER}imgui_extra_math.h
+   ${IMGUI_NODE_FOLDER}imgui_node_editor.cpp
+   ${IMGUI_NODE_FOLDER}imgui_node_editor.h
+   ${IMGUI_NODE_FOLDER}imgui_node_editor.h
+   ${IMGUI_NODE_FOLDER}imgui_node_editor_api.cpp
+   ${IMGUI_NODE_FOLDER}imgui_node_editor_internal.h
+   ${IMGUI_NODE_FOLDER}utilities/builders.cpp
+   ${IMGUI_NODE_FOLDER}utilities/builders.h
+   ${IMGUI_NODE_FOLDER}utilities/drawing.cpp
+   ${IMGUI_NODE_FOLDER}utilities/drawing.h
+   ${IMGUI_NODE_FOLDER}utilities/widgets.cpp
+   ${IMGUI_NODE_FOLDER}utilities/widgets.h
+)
+add_library(GUI SHARED ${GUI_FILES} ${IMGUI_FILES})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${GUI_FILES})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}"/../External" FILES ${IMGUI_FILES})
+target_link_libraries(GUI PRIVATE
+    Core
+    Platform
+    DirectXTex
+)
+target_include_directories(GUI PRIVATE
+	"${GUI_FOLDER}"
+    "${PLATFORM_FOLDER}"
+	"${CORE_FOLDER}"
+    "${EXTERNAL_FOLDER}imgui"
+    "${EXTERNAL_FOLDER}ImGuizmo"
+    "${EXTERNAL_FOLDER}imgui-node-editor"
+    "${EXTERNAL_FOLDER}DirectXTex"
+)
+target_link_directories(GUI PRIVATE
+    "${EXTERNAL_FOLDER}Lib"    
+    ${CMAKE_BINARY_DIR}
+)
+target_compile_definitions(GUI PRIVATE ${COMMON_COMPILE_DEFINITIONS} HV_GUI_DLL)
+target_compile_options(GUI PRIVATE /W3 /MP /ZI /JMC /fp:fast /FC)
+target_link_options(GUI PRIVATE ${COMMON_LINK_OPTIONS})
+set_property(TARGET GUI PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${WORKING_FOLDER})
+set_target_properties(GUI PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${WORKING_FOLDER} RUNTIME_OUTPUT_DIRECTORY_RELEASE ${WORKING_FOLDER})
+add_dependencies(GUI Core Platform)
+# ==================== GUI ====================
+
+# ==================== ENGINE ====================
+set(ENGINE_FILES
+)
+
+# ==================== ENGINE:SHADERS ====================
+set(SHADER_INCLUDES
+)
+set(VERTEX_SHADERS
+)
+set(GEOMETRY_SHADERS
+)
+set(PIXEL_SHADERS
+)
+set_source_files_properties(${VERTEX_SHADERS} PROPERTIES VS_SHADER_TYPE Vertex)
+set_source_files_properties(${GEOMETRY_SHADERS} PROPERTIES VS_SHADER_TYPE Geometry)
+set_source_files_properties(${PIXEL_SHADERS} PROPERTIES VS_SHADER_TYPE Pixel)
+set(HLSL_SHADER_FILES
+    ${VERTEX_SHADERS}
+    ${GEOMETRY_SHADERS}
+    ${PIXEL_SHADERS}
+)
+set_source_files_properties(${HLSL_SHADER_FILES} PROPERTIES VS_SHADER_MODEL 5.0)
+foreach(FILE ${HLSL_SHADER_FILES})
+  get_filename_component(FILE_NAME ${FILE} NAME_WE)
+  set_property(SOURCE ${FILE} PROPERTY VS_SHADER_OBJECT_FILE_NAME ${WORKING_FOLDER}Shaders/${FILE_NAME}.cso)
+endforeach(FILE)
+# ==================== ENGINE:SHADERS ====================
+
+add_library(Engine SHARED ${ENGINE_FILES} ${SHADER_INCLUDES} ${HLSL_SHADER_FILES})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${ENGINE_FILES})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SHADER_INCLUDES})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${HLSL_SHADER_FILES})
+target_link_libraries(Engine PRIVATE
+    assimp-vc143-mtd
+    DirectXTex
+    box2dd
+    PhysX/PhysX_64
+    PhysX/PhysXCommon_64
+    PhysX/PhysXExtensions_static_64
+    PhysX/PhysXFoundation_64
+    PhysX/PhysXPvdSDK_static_64
+    PhysX/PhysXCharacterKinematic_static_64
+    Core
+    Platform
+    GUI
+)
+target_include_directories(Engine PRIVATE
+    "${ENGINE_FOLDER}"
+    "${EXTERNAL_FOLDER}"
+    "${EXTERNAL_FOLDER}assimp/include"
+    "${EXTERNAL_FOLDER}FastNoise2/include"
+    "${EXTERNAL_FOLDER}rapidjson/include"
+    "${EXTERNAL_FOLDER}DirectXTex"
+    "${EXTERNAL_FOLDER}box2d/include/box2d"
+    "${EXTERNAL_FOLDER}box2dcpp/include/box2cpp"
+    "${EXTERNAL_FOLDER}PhysX/physx/include"
+    "Core"
+    "Platform"
+    "GUI"
+)
+target_link_directories(Engine PRIVATE
+    "${EXTERNAL_FOLDER}Lib"
+    ${CMAKE_BINARY_DIR}
+)
+target_compile_definitions(Engine PRIVATE ${COMMON_COMPILE_DEFINITIONS} HV_ENGINE_DLL)
+target_compile_options(Engine PRIVATE ${COMMON_COMPILE_OPTIONS})
+target_compile_options(Engine PRIVATE "/FI${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/Engine.dir/$<CONFIG>/cmake_pch.hxx")
+target_precompile_headers(Engine PRIVATE ${ENGINE_FOLDER}hvpch.h)
+target_link_options(Engine PRIVATE ${COMMON_LINK_OPTIONS} /NODEFAULTLIB:LIBCMTD.lib)
+#target_link_options(Engine PRIVATE ${COMMON_LINK_OPTIONS} /NODEFAULTLIB:LIBCMTD.lib /IMPLIB:${CMAKE_CURRENT_BINARY_DIR}/Engine.dir/Engine/Engine_$<CONFIG>.lib)
+set_property(TARGET Engine PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${WORKING_FOLDER})
+set_target_properties(Engine PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${WORKING_FOLDER} RUNTIME_OUTPUT_DIRECTORY_RELEASE ${WORKING_FOLDER})
+add_dependencies(Engine Core Platform GUI)
+# ==================== ENGINE ====================
+
+
+# ==================== GAME ====================
+set(GAME_FILES
+)
+add_library(Game SHARED ${GAME_FILES})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${GAME_FILES})
+target_include_directories(Game PRIVATE
+    "${GAME_FOLDER}"
+    "${EXTERNAL_FOLDER}"
+    "${EXTERNAL_FOLDER}FastNoise2/include"
+    "${EXTERNAL_FOLDER}rapidjson/include"
+    "${EXTERNAL_FOLDER}DirectXTex"
+    "${EXTERNAL_FOLDER}box2d/include/box2d"
+    "${EXTERNAL_FOLDER}box2dcpp/include/box2cpp"
+    "${EXTERNAL_FOLDER}PhysX/physx/include"
+    "Core"
+    "Platform"
+    "GUI"
+    "Engine"
+)
+target_link_libraries(Game PRIVATE
+    Core
+    Platform
+    GUI
+    Engine
+)
+target_link_directories(Game PRIVATE
+    ${CMAKE_BINARY_DIR}
+)
+target_compile_definitions(Game PRIVATE ${COMMON_COMPILE_DEFINITIONS} HV_GAME_DLL)
+target_compile_options(Game PRIVATE ${COMMON_COMPILE_OPTIONS})
+target_compile_options(Game PRIVATE "/FI${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/Game.dir/$<CONFIG>/cmake_pch.hxx")
+target_precompile_headers(Game PRIVATE ${GAME_FOLDER}hvpch.h)
+target_link_options(Game PRIVATE ${COMMON_LINK_OPTIONS})
+set_property(TARGET Game PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${WORKING_FOLDER})
+set_target_properties(Game PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${WORKING_FOLDER} RUNTIME_OUTPUT_DIRECTORY_RELEASE ${WORKING_FOLDER})
+add_dependencies(Game Core Platform GUI Engine)
+# ==================== GAME ====================
+
+# ==================== EDITOR ====================
+set(EDITOR_FILES
+)
+add_library(Editor SHARED ${EDITOR_FILES})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${EDITOR_FILES})
+target_include_directories(Editor PRIVATE
+    "${EDITOR_FOLDER}"
+    "${EXTERNAL_FOLDER}rapidjson/include"
+    "${EXTERNAL_FOLDER}DirectXTex"
+    "${EXTERNAL_FOLDER}box2d/include/box2d"
+    "${EXTERNAL_FOLDER}box2dcpp/include/box2cpp"
+    "${EXTERNAL_FOLDER}PhysX/physx/include"
+    "Core"
+    "Platform"
+    "GUI"
+    "Engine"
+)
+target_link_libraries(Editor PRIVATE
+    Core
+    Platform
+    GUI
+    Engine
+    Game
+)
+target_link_directories(Editor PRIVATE
+    ${CMAKE_BINARY_DIR}
+)
+target_compile_definitions(Editor PRIVATE ${COMMON_COMPILE_DEFINITIONS} HV_EDITOR_DLL)
+target_compile_options(Editor PRIVATE ${COMMON_COMPILE_OPTIONS})
+target_precompile_headers(Editor PRIVATE ${EDITOR_FOLDER}hvpch.h)
+target_link_options(Editor PRIVATE ${COMMON_LINK_OPTIONS})
+set_property(TARGET Editor PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${WORKING_FOLDER})
+set_target_properties(Editor PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${WORKING_FOLDER} RUNTIME_OUTPUT_DIRECTORY_RELEASE ${WORKING_FOLDER})
+add_dependencies(Editor Core Platform GUI Engine Game)
+# ==================== EDITOR ====================
+
+# ==================== LAUNCHER ====================
+set(LAUNCHER_FILES
+)
+add_executable(Launcher WIN32 ${LAUNCHER_FILES})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${LAUNCHER_FILES})
+target_include_directories(Launcher PRIVATE
+	"${LAUNCHER_FOLDER}"
+    "${EXTERNAL_FOLDER}box2d/include/box2d"
+    "${EXTERNAL_FOLDER}rapidjson/include"
+	"${EXTERNAL_FOLDER}box2dcpp/include/box2cpp"
+	"${EXTERNAL_FOLDER}PhysX/physx/include"
+    "Core"
+    "Platform"
+	"GUI"
+	"Engine"
+	"Game"
+	"Editor"
+)
+target_link_libraries(Launcher PRIVATE
+    Core    
+    Platform
+    GUI
+    Engine
+    Game
+    Editor
+)
+target_link_directories(Launcher PRIVATE
+    ${CMAKE_BINARY_DIR}
+)
+target_compile_definitions(Launcher PRIVATE ${COMMON_COMPILE_DEFINITIONS})
+target_compile_options(Launcher PRIVATE ${COMMON_COMPILE_OPTIONS})
+target_link_options(Launcher PRIVATE ${COMMON_LINK_OPTIONS})
+set_property(TARGET Launcher PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${WORKING_FOLDER})
+set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Launcher)
+set_target_properties(Launcher PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${WORKING_FOLDER} RUNTIME_OUTPUT_DIRECTORY_RELEASE ${WORKING_FOLDER})
+add_dependencies(Launcher Core Platform GUI Engine Game Editor)
+# ==================== LAUNCHER ====================
