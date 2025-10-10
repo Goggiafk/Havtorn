@@ -15,6 +15,9 @@ class HavtornKeys(Enum):
         GeometryShaders = auto()
         ShaderIncludes = auto()
         External = auto()
+        ImGui = auto()
+        ImGuizmo = auto()
+        ImGuiNode = auto()
 
 class HavtornMainFoldersUtility:
     @staticmethod
@@ -33,6 +36,9 @@ class HavtornMainFoldersUtility:
                 HavtornKeys.GeometryShaders:"Engine/Graphics/Shaders/",
                 HavtornKeys.ShaderIncludes:"Engine/Graphics/Shaders/Includes/",
                 HavtornKeys.External:"../External/",
+                HavtornKeys.ImGui:"../External/imgui/",
+                HavtornKeys.ImGuizmo:"../External/ImGuizmo/",
+                HavtornKeys.ImGuiNode:"../External/imgui-node-editor/",
         }
         try:
             return dictionary[key]
@@ -54,6 +60,9 @@ class HavtornMainFoldersUtility:
                 HavtornKeys.VertexShaders:"set(VERTEX_SHADERS\n",
                 HavtornKeys.GeometryShaders:"set(GEOMETRY_SHADERS\n",
                 HavtornKeys.ShaderIncludes:"set(SHADER_INCLUDES\n",
+                HavtornKeys.ImGui:"set(IMGUI_FOLDER\n",
+                HavtornKeys.ImGuizmo:"set(IMGUIZMO_FOLDER\n",
+                HavtornKeys.ImGuiNode:"set(IMGUI_NODE_FOLDER\n",
         }
         try:
             return dictionary[key]

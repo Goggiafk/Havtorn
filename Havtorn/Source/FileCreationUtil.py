@@ -4,6 +4,8 @@ import re
 import io
 import time
 
+from HavtornMainFoldersUtility import HavtornMainFoldersUtility
+from HavtornMainFoldersUtility import HavtornKeys
 from ValidationUtils import ValidationUtil
 
 # TODO: Look over if it is possible to restructure how CMakeLists and this script tracks directories -> Generate CMakeLists through script?
@@ -18,75 +20,25 @@ class FileCreationUtil:
     inputCharacters = ">> "
 
     generatorScriptPath = "./../ProjectSetup/GenerateProjectFiles.bat"
-
-    core = "core"
-    platform = "platform"
-    gui = "gui"
-    imgui = "imgui"
-    imguizmo = "imguizmo"
-    imguinode = "imguinode"
-    engine = "engine"
-    shaderinclude = "shaderinclude"
-    vertex = "vertexshader"
-    geometry = "geometryshader"
-    pixel = "pixelshader"
-    game = "game"
-    editor = "editor"
-    launcher = "launcher"
     
     mainFolderChoices={
-        core,
-        platform,
-        gui,
-        imgui,
-        imguizmo,
-        imguinode,
-        engine,
-        shaderinclude,
-        vertex,
-        geometry,
-        pixel,
-        game,
-        editor,
-        launcher
+        HavtornKeys.Core.name,
+        HavtornKeys.Platform.name,
+        HavtornKeys.GUI.name,
+        HavtornKeys.ImGui.name,
+        HavtornKeys.ImGuizmo.name,
+        HavtornKeys.ImGuiNode.name,
+        HavtornKeys.Engine.name,
+        HavtornKeys.ShaderIncludes.name, #TODO: if shader category, check extension & category to see if fileSpecifier is missing, if not add it. I.e coolshader.hlsl in VertexShaders should have _VS => coolshader_VS.hlsl
+        HavtornKeys.VertexShaders.name,
+        HavtornKeys.GeometryShaders.name,
+        HavtornKeys.PixelShaders.name,
+        HavtornKeys.Game.name,
+        HavtornKeys.Editor.name,
+        HavtornKeys.Launcher.name,
     }
     # So we always show them in the same order
     mainFolderChoices=sorted(mainFolderChoices)
-
-    choiceToCMakeCollection={
-        core:"CORE_FILES",
-        platform:"PLATFORM_FILES",
-        gui:"GUI_FILES",
-        imgui:"IMGUI_FILES",
-        imguizmo:"IMGUI_FILES",
-        imguinode:"IMGUI_FILES",
-        engine:"ENGINE_FILES",
-        shaderinclude:"SHADER_INCLUDES",
-        vertex:"VERTEX_SHADERS",
-        geometry:"GEOMETRY_SHADERS",
-        pixel:"PIXEL_SHADERS",
-        game:"GAME_FILES",
-        editor:"EDITOR_FILES",
-        launcher:"LAUNCHER_FILES",
-    }
-
-    shaderFolder = "Engine/Graphics/Shaders/"
-    choiceToFolder={
-        core:"Core/",
-        platform:"Platform/",
-        gui:"GUI/",
-        imgui:"../External/imgui/",
-        imguizmo:"../External/ImGuizmo/",
-        imguinode:"../External/imgui-node-editor/",
-        engine:"Engine/",
-        shaderinclude:shaderFolder + "Includes/",
-        vertex:shaderFolder,
-        geometry:shaderFolder,
-        pixel:shaderFolder,
-        game:"Game/",
-        editor:"Editor/",
-        launcher:"Launcher/",
-    }
 
     addFileCommand = "-f"
     addFileSingle = "-sf"
@@ -96,7 +48,7 @@ class FileCreationUtil:
 
     @classmethod
     def __init__(self):
-        self.mainFolder = ""
+        self.mainFolder:HavtornKeys
         self.filesToAdd = []
         return
 
@@ -115,16 +67,19 @@ class FileCreationUtil:
     def select_main_folder(self):
         self.print_command_separator()
         print("Pick a main folder:")
-        for choice in self.mainFolderChoices:
-            print("\t" + choice)
+        for option in HavtornKeys:
+            print("\t" + option.name)
 
         self.print_command_separator()
         while(True):
-            self.mainFolder=input(self.inputCharacters)
-            if self.mainFolder in self.mainFolderChoices:
-                break
-            else:
-                self.on_error(f'invalid option "{self.mainFolder}"')
+            inputChoice = input(self.inputCharacters)
+            for key in HavtornKeys:
+                if inputChoice.lower() not in key.name.lower():
+                    continue
+                self.mainFolder = key
+                return
+                
+            self.on_error(f'invalid option "{inputChoice}"')
         return
     
     @classmethod
@@ -141,7 +96,7 @@ class FileCreationUtil:
     @classmethod
     def print_status(self):
         self.print_command_separator()
-        print(f"Main folder: {self.choiceToFolder[self.mainFolder]}")
+        print(f"Main folder: {HavtornMainFoldersUtility.get_folder_path(self.mainFolder)}")
         print(f"Files:")
         for i, (_, file) in enumerate(self.filesToAdd):
             print(f'+ [{i + 1}] {file}')
@@ -166,7 +121,7 @@ class FileCreationUtil:
                 return
                 
         folders = "/".join(folderNames)
-        self.filesToAdd.append((self.mainFolder, self.choiceToFolder[self.mainFolder] + folders + "/" + fileNameSplit[0] + "." + associatedExtension))
+        self.filesToAdd.append((self.mainFolder, HavtornMainFoldersUtility.get_folder_path(self.mainFolder) + folders + "/" + fileNameSplit[0] + "." + associatedExtension))
         return
     
     @classmethod
@@ -266,9 +221,10 @@ class FileCreationUtil:
         return
 
     @classmethod
-    def add_file_to_cmake(self, mainFolder:str, fileToAdd:str):
+    #TODO: add to cmake-template if new External file, otherwise, just run GenerateCMakeLists.py
+    def add_file_to_cmake(self, mainFolder:HavtornKeys, fileToAdd:str):
         # Read CMakeLists into a list of lines, append entry and rewrite file
-        cmakeTarget=f"set({self.choiceToCMakeCollection[mainFolder]}\n"
+        cmakeTarget = HavtornMainFoldersUtility.get_cmake_variable_name(mainFolder) 
         entry=f"\t{fileToAdd}\n"
         fileAsLineList=list[str]
         with open(self.cmakeListFilePath, "r") as cmakeFile: 
@@ -304,7 +260,7 @@ class FileCreationUtil:
         if not self.valid_file(fileName):
             return False
         
-        pendingAddition = (self.mainFolder, self.choiceToFolder[self.mainFolder] + fileToAdd)                        
+        pendingAddition = (self.mainFolder, HavtornMainFoldersUtility.get_folder_path(self.mainFolder) + fileToAdd)                        
         if pendingAddition in self.filesToAdd:
             self.on_error(f"trying to add duplicate {fileToAdd}")
             return False
@@ -315,7 +271,7 @@ class FileCreationUtil:
     def process_commands(self):
         while(True):
             self.print_options()
-            self.print_status() # Add warning for VS, PS & GS if they don't include _VS
+            self.print_status()
 
             userInput=input(self.inputCharacters)
 
