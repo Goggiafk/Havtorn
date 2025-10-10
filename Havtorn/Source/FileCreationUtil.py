@@ -4,6 +4,7 @@ import re
 import io
 import time
 
+from HavtornFolderUtil import GenerateProjectFilesPath
 from HavtornFolderUtil import HavtornFolderUtil
 from HavtornFolderUtil import HavtornFolders
 from ValidationUtils import ValidationUtil
@@ -18,8 +19,6 @@ class FileCreationUtil:
     cmakeListFilePath="CMakeLists.txt"
     
     inputCharacters = ">> "
-
-    generatorScriptPath = "./../ProjectSetup/GenerateProjectFiles.bat"
     
     mainFolderChoices={
         HavtornFolders.Core.name,
@@ -241,7 +240,7 @@ class FileCreationUtil:
         for (mainFolder, fileToAdd) in self.filesToAdd:
             self.add_file_to_cmake(mainFolder, fileToAdd)
         print("\nRegenerating project ...")
-        subprocess.call([os.path.abspath(self.generatorScriptPath), "nopause"])
+        subprocess.call([os.path.abspath(GenerateProjectFilesPath), "nopause"])
         self.filesToAdd = []
         return
 

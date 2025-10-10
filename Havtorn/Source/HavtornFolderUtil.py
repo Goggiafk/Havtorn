@@ -1,6 +1,8 @@
 from enum import Enum
 from enum import auto
 
+GenerateProjectFilesPath = "./../ProjectSetup/GenerateProjectFiles.bat"
+
 class HavtornFolders(Enum):
         Core = auto()
         Engine = auto()

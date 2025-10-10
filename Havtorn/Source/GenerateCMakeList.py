@@ -1,8 +1,10 @@
 import os
 import re
+import subprocess
 from glob import glob
 from collections import defaultdict
 
+from HavtornFolderUtil import GenerateProjectFilesPath
 from HavtornFolderUtil import HavtornFolderUtil
 from HavtornFolderUtil import HavtornFolders
 
@@ -54,6 +56,8 @@ class CMakeTextsGenerator:
     # should also set the values of CMakes set under FOLDERS using HavtornFolders-values
     @classmethod
     def Run(self, templatePath:str, cmakeListsPath:str):
+        print(f"Generating {cmakeListsPath} from {templatePath} ...")
+        
         for target in self.targets:
             self.filesToAdd.update({target : list[str]()})
             try:
@@ -100,3 +104,5 @@ class CMakeTextsGenerator:
 if __name__ == "__main__":
     generator = CMakeTextsGenerator()
     generator.Run("CMakeListsTemplate.txt", "CMakeLists.txt")
+    print("\nRegenerating project ...")
+    subprocess.call([os.path.abspath(GenerateProjectFilesPath), "nopause"])
