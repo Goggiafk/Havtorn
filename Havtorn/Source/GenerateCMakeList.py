@@ -3,40 +3,40 @@ import re
 from glob import glob
 from collections import defaultdict
 
-from HavtornMainFoldersUtility import HavtornMainFoldersUtility
-from HavtornMainFoldersUtility import HavtornKeys
+from HavtornFolderUtil import HavtornFolderUtil
+from HavtornFolderUtil import HavtornFolders
 
 # Scans Havtorn's Source-folder for files and adds them to CMakeLists
 # External-folders are excluded from scan since we want a handpicked selection from them
 class CMakeTextsGenerator:
     targets = {
-        HavtornKeys.Core,
-        HavtornKeys.Engine,
-        HavtornKeys.Editor,
-        HavtornKeys.Launcher,
-        HavtornKeys.Platform,
-        HavtornKeys.Game,
-        HavtornKeys.GUI,
-        HavtornKeys.PixelShaders,
-        HavtornKeys.VertexShaders,
-        HavtornKeys.GeometryShaders,
-        HavtornKeys.ShaderIncludes,
+        HavtornFolders.Core,
+        HavtornFolders.Engine,
+        HavtornFolders.Editor,
+        HavtornFolders.Launcher,
+        HavtornFolders.Platform,
+        HavtornFolders.Game,
+        HavtornFolders.GUI,
+        HavtornFolders.PixelShaders,
+        HavtornFolders.VertexShaders,
+        HavtornFolders.GeometryShaders,
+        HavtornFolders.ShaderIncludes,
     }
 
     targetSpecficNameFilters = {
-        HavtornKeys.PixelShaders:{
-            HavtornMainFoldersUtility.get_file_specifier( HavtornKeys.PixelShaders),
+        HavtornFolders.PixelShaders:{
+            HavtornFolderUtil.get_file_specifier( HavtornFolders.PixelShaders),
             },
-        HavtornKeys.VertexShaders:{
-            HavtornMainFoldersUtility.get_file_specifier( HavtornKeys.VertexShaders),
+        HavtornFolders.VertexShaders:{
+            HavtornFolderUtil.get_file_specifier( HavtornFolders.VertexShaders),
             },
-        HavtornKeys.GeometryShaders:{
-            HavtornMainFoldersUtility.get_file_specifier( HavtornKeys.GeometryShaders),
+        HavtornFolders.GeometryShaders:{
+            HavtornFolderUtil.get_file_specifier( HavtornFolders.GeometryShaders),
             },
     }
 
     targetSpecificExclusions = {
-        HavtornKeys.Engine:{
+        HavtornFolders.Engine:{
             'Shaders',
             },
     }
@@ -51,7 +51,7 @@ class CMakeTextsGenerator:
         self.filesToAdd = defaultdict(list[str])
         return
     
-    # should also set the values of CMakes set under FOLDERS
+    # should also set the values of CMakes set under FOLDERS using HavtornFolders-values
     @classmethod
     def Run(self, templatePath:str, cmakeListsPath:str):
         for target in self.targets:
@@ -67,7 +67,7 @@ class CMakeTextsGenerator:
                 if target in self.targetSpecficNameFilters:
                     fileNameFilters = '|'.join(self.targetSpecficNameFilters[target])
                 
-                for file in glob(os.path.abspath(HavtornMainFoldersUtility.get_folder_path(target)) + '/**', recursive=True):
+                for file in glob(os.path.abspath(HavtornFolderUtil.get_folder_path(target)) + '/**', recursive=True):
                     if not os.path.isfile(file):
                         continue
                     if (exclusions and re.search(exclusions, file)):
@@ -88,7 +88,7 @@ class CMakeTextsGenerator:
             cmakeFileAsLineList = templateFile.readlines()
         
         for target in self.targets:
-            cmakeFileTargetName = HavtornMainFoldersUtility.get_cmake_variable_name(target)
+            cmakeFileTargetName = HavtornFolderUtil.get_cmake_variable_name(target)
             for toAdd in self.filesToAdd[target]:
                 cmakeFileAsLineList.insert(cmakeFileAsLineList.index(cmakeFileTargetName) + 1, "\t" + toAdd + "\n")
 

@@ -4,8 +4,8 @@ import re
 import io
 import time
 
-from HavtornMainFoldersUtility import HavtornMainFoldersUtility
-from HavtornMainFoldersUtility import HavtornKeys
+from HavtornFolderUtil import HavtornFolderUtil
+from HavtornFolderUtil import HavtornFolders
 from ValidationUtils import ValidationUtil
 
 # TODO: Look over if it is possible to restructure how CMakeLists and this script tracks directories -> Generate CMakeLists through script?
@@ -22,20 +22,20 @@ class FileCreationUtil:
     generatorScriptPath = "./../ProjectSetup/GenerateProjectFiles.bat"
     
     mainFolderChoices={
-        HavtornKeys.Core.name,
-        HavtornKeys.Platform.name,
-        HavtornKeys.GUI.name,
-        HavtornKeys.ImGui.name,
-        HavtornKeys.ImGuizmo.name,
-        HavtornKeys.ImGuiNode.name,
-        HavtornKeys.Engine.name,
-        HavtornKeys.ShaderIncludes.name, #TODO: if shader category, check extension & category to see if fileSpecifier is missing, if not add it. I.e coolshader.hlsl in VertexShaders should have _VS => coolshader_VS.hlsl
-        HavtornKeys.VertexShaders.name,
-        HavtornKeys.GeometryShaders.name,
-        HavtornKeys.PixelShaders.name,
-        HavtornKeys.Game.name,
-        HavtornKeys.Editor.name,
-        HavtornKeys.Launcher.name,
+        HavtornFolders.Core.name,
+        HavtornFolders.Platform.name,
+        HavtornFolders.GUI.name,
+        HavtornFolders.ImGui.name,
+        HavtornFolders.ImGuizmo.name,
+        HavtornFolders.ImGuiNode.name,
+        HavtornFolders.Engine.name,
+        HavtornFolders.ShaderIncludes.name, #TODO: if shader category, check extension & category to see if fileSpecifier is missing, if not add it. I.e coolshader.hlsl in VertexShaders should have _VS => coolshader_VS.hlsl
+        HavtornFolders.VertexShaders.name,
+        HavtornFolders.GeometryShaders.name,
+        HavtornFolders.PixelShaders.name,
+        HavtornFolders.Game.name,
+        HavtornFolders.Editor.name,
+        HavtornFolders.Launcher.name,
     }
     # So we always show them in the same order
     mainFolderChoices=sorted(mainFolderChoices)
@@ -48,7 +48,7 @@ class FileCreationUtil:
 
     @classmethod
     def __init__(self):
-        self.mainFolder:HavtornKeys
+        self.mainFolder:HavtornFolders
         self.filesToAdd = []
         return
 
@@ -67,13 +67,13 @@ class FileCreationUtil:
     def select_main_folder(self):
         self.print_command_separator()
         print("Pick a main folder:")
-        for option in HavtornKeys:
+        for option in HavtornFolders:
             print("\t" + option.name)
 
         self.print_command_separator()
         while(True):
             inputChoice = input(self.inputCharacters)
-            for key in HavtornKeys:
+            for key in HavtornFolders:
                 if inputChoice.lower() not in key.name.lower():
                     continue
                 self.mainFolder = key
@@ -96,7 +96,7 @@ class FileCreationUtil:
     @classmethod
     def print_status(self):
         self.print_command_separator()
-        print(f"Main folder: {HavtornMainFoldersUtility.get_folder_path(self.mainFolder)}")
+        print(f"Main folder: {HavtornFolderUtil.get_folder_path(self.mainFolder)}")
         print(f"Files:")
         for i, (_, file) in enumerate(self.filesToAdd):
             print(f'+ [{i + 1}] {file}')
@@ -121,7 +121,7 @@ class FileCreationUtil:
                 return
                 
         folders = "/".join(folderNames)
-        self.filesToAdd.append((self.mainFolder, HavtornMainFoldersUtility.get_folder_path(self.mainFolder) + folders + "/" + fileNameSplit[0] + "." + associatedExtension))
+        self.filesToAdd.append((self.mainFolder, HavtornFolderUtil.get_folder_path(self.mainFolder) + folders + "/" + fileNameSplit[0] + "." + associatedExtension))
         return
     
     @classmethod
@@ -222,9 +222,9 @@ class FileCreationUtil:
 
     @classmethod
     #TODO: add to cmake-template if new External file, otherwise, just run GenerateCMakeLists.py
-    def add_file_to_cmake(self, mainFolder:HavtornKeys, fileToAdd:str):
+    def add_file_to_cmake(self, mainFolder:HavtornFolders, fileToAdd:str):
         # Read CMakeLists into a list of lines, append entry and rewrite file
-        cmakeTarget = HavtornMainFoldersUtility.get_cmake_variable_name(mainFolder) 
+        cmakeTarget = HavtornFolderUtil.get_cmake_variable_name(mainFolder) 
         entry=f"\t{fileToAdd}\n"
         fileAsLineList=list[str]
         with open(self.cmakeListFilePath, "r") as cmakeFile: 
@@ -260,7 +260,7 @@ class FileCreationUtil:
         if not self.valid_file(fileName):
             return False
         
-        pendingAddition = (self.mainFolder, HavtornMainFoldersUtility.get_folder_path(self.mainFolder) + fileToAdd)                        
+        pendingAddition = (self.mainFolder, HavtornFolderUtil.get_folder_path(self.mainFolder) + fileToAdd)                        
         if pendingAddition in self.filesToAdd:
             self.on_error(f"trying to add duplicate {fileToAdd}")
             return False
