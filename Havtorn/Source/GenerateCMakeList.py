@@ -1,174 +1,101 @@
 import os
 import re
-from glob import glob
 from enum import Enum
-from enum import auto
+from glob import glob
 from collections import defaultdict
+from HavtornMainFoldersUtility import HavtornMainFoldersUtility
+from HavtornMainFoldersUtility import HavtornKeys
 
-# repeating the same mistakes: starting before thinking things through
-# what do we want: be able to modify/move files in file-explorer and update CMakeTexts through script
-# what do we need for that: search main-folders and replace the entire entries of files under the main-folder sections
-# create a generator template of CMakeLists 
-class HavtornMainFoldersUtility:
-    class Keys(Enum):
-        Core = auto()
-        Engine = auto()
-        Editor = auto()
-        Launcher = auto()
-        Game = auto()
-        Platform = auto()
-        GUI = auto()
-        Shaders = auto()
-        PixelShaders = auto()
-        VertexShaders = auto()
-        GeometryShaders = auto()
-        ShaderIncludes = auto()
-        External = auto()
-
-    @staticmethod
-    def get_folder_path(key:Keys):
-        dictionary = {
-                HavtornMainFoldersUtility.Keys.Core:"Core/",
-                HavtornMainFoldersUtility.Keys.Engine:"Engine/",
-                HavtornMainFoldersUtility.Keys.Editor:"Editor/",
-                HavtornMainFoldersUtility.Keys.Launcher:"Launcher/",
-                HavtornMainFoldersUtility.Keys.Game:"Game/",
-                HavtornMainFoldersUtility.Keys.Platform:"Platform/",
-                HavtornMainFoldersUtility.Keys.GUI:"GUI/",
-                HavtornMainFoldersUtility.Keys.Shaders:"Engine/Graphics/Shaders/",
-                HavtornMainFoldersUtility.Keys.PixelShaders:"Engine/Graphics/Shaders/",
-                HavtornMainFoldersUtility.Keys.VertexShaders:"Engine/Graphics/Shaders/",
-                HavtornMainFoldersUtility.Keys.GeometryShaders:"Engine/Graphics/Shaders/",
-                HavtornMainFoldersUtility.Keys.ShaderIncludes:"Engine/Graphics/Shaders/Includes/",
-                HavtornMainFoldersUtility.Keys.External:"../External/",
-        }
-        try:
-            return dictionary[key]
-        except:
-            print("No folder path for " + key.name)
-            return ""
-    
-    @staticmethod
-    def get_cmake_variable_name(key:Keys):
-        dictionary = {
-                HavtornMainFoldersUtility.Keys.Core:"set(CORE_FILES\n",
-                HavtornMainFoldersUtility.Keys.Engine:"set(ENGINE_FILES\n",
-                HavtornMainFoldersUtility.Keys.Editor:"set(EDITOR_FILES\n",
-                HavtornMainFoldersUtility.Keys.Launcher:"set(LAUNCHER_FILES\n",
-                HavtornMainFoldersUtility.Keys.Game:"set(GAME_FILES\n",
-                HavtornMainFoldersUtility.Keys.Platform:"set(PLATFORM_FILES\n",
-                HavtornMainFoldersUtility.Keys.GUI:"set(GUI_FILES\n",
-                HavtornMainFoldersUtility.Keys.PixelShaders:"set(PIXEL_SHADERS\n",
-                HavtornMainFoldersUtility.Keys.VertexShaders:"set(VERTEX_SHADERS\n",
-                HavtornMainFoldersUtility.Keys.GeometryShaders:"set(GEOMETRY_SHADERS\n",
-                HavtornMainFoldersUtility.Keys.ShaderIncludes:"set(SHADER_INCLUDES\n",
-        }
-        try:
-            return dictionary[key]
-        except:
-            print("No CMake variable name for " + key.name)
-            return ""
-    
-    @staticmethod
-    #TODO: what is the actual name for this?
-    def get_file_specifier(key:Keys):
-        dictionary = {
-                HavtornMainFoldersUtility.Keys.PixelShaders:"_PS",
-                HavtornMainFoldersUtility.Keys.VertexShaders:"_VS",
-                HavtornMainFoldersUtility.Keys.GeometryShaders:"_GS",
-        }
-        try:
-            return dictionary[key]
-        except:
-            print("No file specifier for " + key.name)
-            return ""
-    
 
 # Scans Havtorn's Source-folder for files and adds them to CMakeLists
 # External-folders are excluded from scan since we want a handpicked selection from them
 class CMakeTextsGenerator:
-    #TODO: what is the actual name for this?
-    class HasFileSpecifiers(Enum):
-        Yes = 0,
-        No = 1
-
     targets = {
-        HavtornMainFoldersUtility.Keys.Core,
-        HavtornMainFoldersUtility.Keys.Engine,
-        HavtornMainFoldersUtility.Keys.Editor,
-        HavtornMainFoldersUtility.Keys.Launcher,
-        HavtornMainFoldersUtility.Keys.Platform,
-        HavtornMainFoldersUtility.Keys.Game,
-        HavtornMainFoldersUtility.Keys.GUI,
-        HavtornMainFoldersUtility.Keys.PixelShaders,
-        HavtornMainFoldersUtility.Keys.VertexShaders,
-        HavtornMainFoldersUtility.Keys.GeometryShaders,
-        HavtornMainFoldersUtility.Keys.ShaderIncludes,
+        HavtornKeys.Core,
+        HavtornKeys.Engine,
+        HavtornKeys.Editor,
+        HavtornKeys.Launcher,
+        HavtornKeys.Platform,
+        HavtornKeys.Game,
+        HavtornKeys.GUI,
+        HavtornKeys.PixelShaders,
+        HavtornKeys.VertexShaders,
+        HavtornKeys.GeometryShaders,
+        HavtornKeys.ShaderIncludes,
     }
 
-    targetSplitters = {
-
+    targetSpecficNameFilters = {
+        HavtornKeys.PixelShaders:{
+            HavtornMainFoldersUtility.get_file_specifier( HavtornKeys.PixelShaders),
+            },
+        HavtornKeys.VertexShaders:{
+            HavtornMainFoldersUtility.get_file_specifier( HavtornKeys.VertexShaders),
+            },
+        HavtornKeys.GeometryShaders:{
+            HavtornMainFoldersUtility.get_file_specifier( HavtornKeys.GeometryShaders),
+            },
     }
-
-    fileNameFilters = {
-        HavtornMainFoldersUtility.Keys.PixelShaders:{
-            HavtornMainFoldersUtility.get_file_specifier( HavtornMainFoldersUtility.Keys.PixelShaders),
-            },
-        HavtornMainFoldersUtility.Keys.VertexShaders:{
-            HavtornMainFoldersUtility.get_file_specifier( HavtornMainFoldersUtility.Keys.VertexShaders),
-            },
-        HavtornMainFoldersUtility.Keys.GeometryShaders:{
-            HavtornMainFoldersUtility.get_file_specifier( HavtornMainFoldersUtility.Keys.GeometryShaders),
+    # add .hint, .vcxproj.user,
+    targetSpecificExclusions = {
+        HavtornKeys.Engine:{
+            'Shaders',
             },
     }
 
     exclusions = {
-        HavtornMainFoldersUtility.Keys.Engine:{
-            'Shaders',
-            },
+        ".hint",
+        ".vcxproj.user",
     }
+
     # put in __init__
     filesToAdd = defaultdict(list[str])
 
-    #
-    # _cmakeLists_ = read CMakeListsTemplate.txt as line list
-    # For each _entry_ in _filesToAdd_
-    #   find _index_ in _cmakeLists_ of _entry_.value
-    #   For each _file_ in _filesToAdd[_entry_]
-    #       insert _file_ at _index_+1
-    #
     @classmethod
     def Test(self):
         for target in self.targets:
             self.filesToAdd.update({target : list[str]()})
             try:
-                exclusions = ''
-                if target in self.exclusions:
-                    exclusions = '|'.join(self.exclusions[target])
+                exclusions = '|'.join(self.exclusions)
+
+                specificExclusions = ''
+                if target in self.targetSpecificExclusions:
+                    specificExclusions = '|'.join(self.targetSpecificExclusions[target])
 
                 fileNameFilters = ''
-                if target in self.fileNameFilters:
-                    fileNameFilters = '|'.join(self.fileNameFilters[target])
+                if target in self.targetSpecficNameFilters:
+                    fileNameFilters = '|'.join(self.targetSpecficNameFilters[target])
                 
                 for file in glob(os.path.abspath(HavtornMainFoldersUtility.get_folder_path(target)) + '/**', recursive=True):
                     if not os.path.isfile(file):
                         continue
                     if (exclusions and re.search(exclusions, file)):
                         continue
+                    if (specificExclusions and re.search(specificExclusions, file)):
+                        continue
                     if (fileNameFilters and not re.search(fileNameFilters, file)):
                         continue
                     
-                    self.filesToAdd[target].append(file.split("Source\\")[1])
+                    toAdd = file.split("Source\\")[1]
+                    toAdd = toAdd.replace("\\", "/")
+                    self.filesToAdd[target].append(toAdd)
             except Exception as e:
                 print(e)
 
-        template = "CMakeListsTemplate.txt"
-        cmakeLists = "CMakeListsTest.txt"
+        templatePath = "CMakeListsTemplate.txt"
+        cmakeListsPath = "CMakeLists.txt"
+
+        cmakeFileAsLineList = list[str]
+        with open(templatePath, "r") as templateFile: 
+            cmakeFileAsLineList = templateFile.readlines()
         
         for target in self.targets:
-            print(target.name)
-            for file in self.filesToAdd[target]:
-                print("\t" + file)
+            cmakeFileTargetName = HavtornMainFoldersUtility.get_cmake_variable_name(target)
+            for toAdd in self.filesToAdd[target]:
+                cmakeFileAsLineList.insert(cmakeFileAsLineList.index(cmakeFileTargetName) + 1, "\t" + toAdd + "\n")
+
+        with open(cmakeListsPath, "w") as cmakeFile:
+            cmakeFile.flush()
+            cmakeFile.writelines(cmakeFileAsLineList)
         return
 
     @classmethod
